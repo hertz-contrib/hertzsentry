@@ -42,9 +42,9 @@ type testCase struct {
 	event   *sentry.Event
 }
 
+var yourDsn = ""
+
 func Test_Sentry_Normal(t *testing.T) {
-	// your project dsn
-	yourDsn := "http://d613f27d15f54d319e52c2a174ce81b5@10.177.21.35:9000/3"
 
 	// default host
 	defaultHost := "localhost:6666"
@@ -55,7 +55,7 @@ func Test_Sentry_Normal(t *testing.T) {
 	tc := testCase{
 		path:   "/bytedance",
 		method: "GET",
-		handler: NewSentry(Config{
+		handler: NewSentry(Option{
 			RePanic:         true,
 			WaitForDelivery: false,
 			SendHead:        true,
@@ -138,11 +138,9 @@ func Test_Sentry_Normal(t *testing.T) {
 }
 
 func Test_Sentry_Abnormal(t *testing.T) {
-	// your project dsn
-	yourDsn := "http://d613f27d15f54d319e52c2a174ce81b5@10.177.21.35:9000/3"
 
 	// default host
-	defaultHost := "localhost:6666"
+	defaultHost := "localhost:8088"
 
 	// set interval to 0 means using fs-watching mechanism.
 	hertz := server.New(server.WithHostPorts(defaultHost))
@@ -150,7 +148,7 @@ func Test_Sentry_Abnormal(t *testing.T) {
 	tc := testCase{
 		path:   "/hertz",
 		method: "GET",
-		handler: NewSentry(Config{
+		handler: NewSentry(Option{
 			RePanic:         true,
 			WaitForDelivery: false,
 			SendHead:        true,
@@ -161,10 +159,10 @@ func Test_Sentry_Abnormal(t *testing.T) {
 			Level:   sentry.LevelDebug,
 			Message: "test for panic",
 			Request: &sentry.Request{
-				URL:    "http://localhost:6666/hertz",
+				URL:    "http://localhost:8088/hertz",
 				Method: "GET",
 				Headers: map[string]string{
-					"Host":            "localhost:6666",
+					"Host":            "localhost:8088",
 					"User-Agent":      "hertz",
 					"Content-Length":  "0",
 					"Accept-Encoding": "gzip",
