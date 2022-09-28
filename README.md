@@ -35,9 +35,9 @@ func main() {
 	h := server.Default(server.WithAutoReloadRender(true, 0))
 
 	// use sentry middleware and config with your requirements.
-  h.Use(hertzsentry.NewSentry())
+	h.Use(hertzsentry.NewSentry())
 
-  // use sentry hub in handler.
+	// use sentry hub in handler.
 	h.GET("/hertz", func(c context.Context, ctx *app.RequestContext) {
 		if hub := hertzsentry.GetHubFromContext(ctx); hub != nil {
 			hub.WithScope(func(scope *sentry.Scope) {
@@ -48,7 +48,7 @@ func main() {
 		}
 		ctx.SetStatusCode(0)
 	})
-  
+
 	h.Spin()
 }
 ```

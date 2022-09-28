@@ -55,7 +55,6 @@ func recoverWithSentry(ctx *app.RequestContext) {
 // GetHubFromContext get the sentry hub, every RequestContext shares the same hub instance
 func GetHubFromContext(ctx *app.RequestContext) *sentry.Hub {
 	cfg := configDefault
-	fmt.Println(cfg)
 	// get the existed hub
 	if value, exist := ctx.Get(valuesKey); exist {
 		if hub, ok := value.(*sentry.Hub); ok {
