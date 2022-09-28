@@ -1,4 +1,8 @@
-# hertzsentry
+# hertzsentry -> (This is a community driven project)
+
+### Introduction
+
+Sentry is an open source real-time error monitoring project that supports many sides, including the Web front end, server side, mobile side, and game side.In order to introduce sentry to `Hertz` on the basis of `Sentry-Go`, we implement the middleware hertzsentry, which provides some unified interfaces to help users get `sentry hub` and report error messages.
 
 ### Installation
 
