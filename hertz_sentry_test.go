@@ -55,13 +55,12 @@ func Test_Sentry_Normal(t *testing.T) {
 	tc := testCase{
 		path:   "/bytedance",
 		method: "GET",
-		handler: NewSentry(Option{
-			RePanic:         true,
-			WaitForDelivery: false,
-			SendHead:        true,
-			SendBody:        false,
-			Timeout:         0,
-		}),
+		handler: NewSentry(
+			WithRePanic(true),
+			WithSendRequest(true),
+			WithWaitForDelivery(true),
+			WithTimeout(3),
+		),
 		event: &sentry.Event{
 			Level:   sentry.LevelDebug,
 			Message: "test for normal",
@@ -78,8 +77,8 @@ func Test_Sentry_Normal(t *testing.T) {
 		},
 	}
 	// init handler func
-	hertz.Use(tc.handler)
 	hertz.Use(recovery.Recovery())
+	hertz.Use(tc.handler)
 
 	// init sentry
 	if err := sentry.Init(sentry.ClientOptions{
@@ -138,7 +137,6 @@ func Test_Sentry_Normal(t *testing.T) {
 }
 
 func Test_Sentry_Abnormal(t *testing.T) {
-
 	// default host
 	defaultHost := "localhost:8088"
 
@@ -148,31 +146,19 @@ func Test_Sentry_Abnormal(t *testing.T) {
 	tc := testCase{
 		path:   "/hertz",
 		method: "GET",
-		handler: NewSentry(Option{
-			RePanic:         true,
-			WaitForDelivery: false,
-			SendHead:        true,
-			SendBody:        true,
-			Timeout:         3,
-		}),
+		handler: NewSentry(
+			WithRePanic(true),
+			WithSendBody(true),
+		),
 		event: &sentry.Event{
-			Level:   sentry.LevelDebug,
+			Level:   sentry.LevelFatal,
 			Message: "test for panic",
-			Request: &sentry.Request{
-				URL:    "http://localhost:8088/hertz",
-				Method: "GET",
-				Headers: map[string]string{
-					"Host":            "localhost:8088",
-					"User-Agent":      "hertz",
-					"Content-Length":  "0",
-					"Accept-Encoding": "gzip",
-				},
-			},
+			Request: nil,
 		},
 	}
 	// init handler func
-	hertz.Use(tc.handler)
 	hertz.Use(recovery.Recovery())
+	hertz.Use(tc.handler)
 
 	// init sentry
 	if err := sentry.Init(sentry.ClientOptions{
@@ -180,6 +166,7 @@ func Test_Sentry_Abnormal(t *testing.T) {
 		Dsn: yourDsn,
 		// Before send callback.
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
+			println(event.Request)
 			assert.DeepEqual(t, tc.event.Request, event.Request)
 			assert.DeepEqual(t, tc.event.Message, event.Message)
 			assert.DeepEqual(t, tc.event.Level, event.Level)
@@ -190,15 +177,14 @@ func Test_Sentry_Abnormal(t *testing.T) {
 		// In debug mode, the debug information is printed to stdout to help you understand what
 		// sentry is doing.
 		Debug: true,
-		// Configures whether SDK should generate and attach stacktraces to pure capture message calls.
+		// Configures whether SDK should generate and attach stack traces to pure capture message calls.
 		AttachStacktrace: true,
 	}); err != nil {
 		log.Fatal("sentry init failed")
 	}
 
 	hertz.Handle(tc.method, tc.path, func(c context.Context, ctx *app.RequestContext) {
-		panic("test for abnormal")
-		ctx.SetStatusCode(1001)
+		panic("test for panic")
 	})
 
 	// set request head

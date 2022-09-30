@@ -10,27 +10,23 @@ Sentry is an open source real-time error monitoring project that supports many s
 go get github.com/hertz-contrib/hertzsentry
 ```
 
-### Configuration
-
-hertzsentry provides a struct named `Option` for meeting your requirements. `Option` maintains the unique instance in sentry.
+### import
 
 ```go
-// Option defines the config for hertz sentry.
-type Option struct {
-	// RePanic configures whether Sentry should repanic after recovery.
-	RePanic bool
+import "github.com/hertz-contrib/hertzsentry"
+```
 
-	// WaitForDelivery configures whether you want to block the request before moving forward with the response.
-	WaitForDelivery bool
 
-	// SendHead configures whether you want to add current request head when capturing sentry events.
-	SendHead bool
 
-	// SendHead configures whether you want to add current request body when capturing sentry events.
-	SendBody bool
+### Config
 
-	// Timeout for the event delivery requests.
-	Timeout time.Duration
+hertzsentry provides a struct named `Option` for meeting your requirements. For exampple, you can use `WithRePanic` function to configure whether you want to block the request before moving forward with the response. 
+
+```go
+func WithRePanic(rePanic bool) Option {
+	return Option{F: func(o *Options) {
+		o.RePanic = rePanic
+	}}
 }
 ```
 
@@ -76,13 +72,11 @@ func main()  {
 	}
 
 	// use sentry middleware and config with your requirements.
-	h.Use(hertzsentry.NewSentry(hertzsentry.Option{
-		RePanic:         true,
-		WaitForDelivery: false,
-		SendHead: 		 true,
-		SendBody: 		 false,
-		Timeout:         0,
-	}))
+  // attention! you should use sentry handler after recovery.Recovery() 
+	h.Use(hertzsentry.NewSentry(
+		hertzsentry.WithSendRequest(true),
+		hertzsentry.WithRePanic(true),
+		))
 
 	h.GET("/bytedance", func(c context.Context, ctx *app.RequestContext) {
 		// use GetHubFromContext to get the hub

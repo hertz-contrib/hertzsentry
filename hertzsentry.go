@@ -21,55 +21,16 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/getsentry/sentry-go"
-	"time"
 )
 
 const valuesKey = "sentry-hub"
 
-// Option defines the config for hertz sentry.
-type Option struct {
-	// RePanic configures whether Sentry should repanic after recovery.
-	// Set to true, if Recover middleware is used.
-	// Optional. Default: false
-	RePanic bool
+// the sentry config that used in the lifetime of sentry.
+var sentryConfig Options
 
-	// WaitForDelivery configures whether you want to block the request before moving forward with the response.
-	// If Recover middleware is used, it's safe to either skip this option or set it to false.
-	// Optional. Default: false
-	WaitForDelivery bool
-
-	// SendHead configures whether you want to add current request head when capturing sentry events.
-	// Optional. Default: false
-	SendHead bool
-
-	// SendHead configures whether you want to add current request body when capturing sentry events.
-	// Optional. Default: false
-	SendBody bool
-
-	// Timeout for the event delivery requests.
-	// Optional. Default: 2 Seconds
-	Timeout time.Duration
-}
-
-// option default option for sentry client
-var option = Option{
-	RePanic:         false,
-	WaitForDelivery: false,
-	SendHead:        false,
-	SendBody:        false,
-	Timeout:         time.Second * 2,
-}
-
-// NewSentry the config of sentry adn return the handler of sentry middleware
+// NewSentry the config of sentry and return the handler of sentry middleware
 func NewSentry(options ...Option) app.HandlerFunc {
-	if len(options) > 1 {
-		panic("the max length of options should not be larger than 1")
-	} else if len(options) == 1 {
-		option = options[0]
-		if option.Timeout == 0 {
-			option.Timeout = time.Second * 2
-		}
-	}
+	sentryConfig = NewOptions(options...)
 	// return HandlerFunc for capturing events or messages when recovered
 	return func(c context.Context, ctx *app.RequestContext) {
 		defer recoverWithSentry(ctx)
@@ -84,10 +45,10 @@ func recoverWithSentry(ctx *app.RequestContext) {
 			context.WithValue(context.Background(), sentry.RequestContextKey, ctx),
 			err,
 		)
-		if eventID != nil && option.WaitForDelivery {
-			hub.Flush(option.Timeout)
+		if eventID != nil && sentryConfig.WaitForDelivery {
+			hub.Flush(sentryConfig.Timeout)
 		}
-		if option.RePanic {
+		if sentryConfig.RePanic {
 			panic(err)
 		}
 	}
@@ -106,12 +67,12 @@ func GetHubFromContext(ctx *app.RequestContext) *sentry.Hub {
 	hub := sentry.CurrentHub().Clone()
 
 	// set request head for hub
-	if request, err := adaptor.GetCompatRequest(&ctx.Request); err == nil && option.SendHead {
+	if request, err := adaptor.GetCompatRequest(&ctx.Request); err == nil && sentryConfig.SendRequest {
 		hub.Scope().SetRequest(request)
 	}
 
 	// set request body for hub
-	if bytes, err := ctx.Body(); err == nil && bytes != nil && option.SendBody {
+	if bytes, err := ctx.Body(); err == nil && bytes != nil && sentryConfig.SendBody {
 		hub.Scope().SetRequestBody(bytes)
 	}
 	ctx.Set(valuesKey, hub)
