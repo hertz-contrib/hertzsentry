@@ -23,9 +23,11 @@ import "github.com/hertz-contrib/hertzsentry"
 hertzsentry provides a struct named `Option` for meeting your requirements. For exampple, you can use `WithRePanic` function to configure whether you want to block the request before moving forward with the response. 
 
 ```go
+// WithRePanic configures whether Sentry should repanic after recovery.
+// Set to true, if Recover middleware is used.
 func WithRePanic(rePanic bool) Option {
-	return Option{F: func(o *Options) {
-		o.RePanic = rePanic
+	return Option{F: func(o *options) {
+		o.rePanic = rePanic
 	}}
 }
 ```
