@@ -20,82 +20,82 @@ import "time"
 
 // Option set to config unique option
 type Option struct {
-	F func(o *Options)
+	F func(o *options)
 }
 
 // Options defines the config for hertz sentry.
-type Options struct {
-	// RePanic configures whether Sentry should repanic after recovery.
-	// Set to true, if Recover middleware is used.
+type options struct {
 	// Optional. Default: false
-	RePanic bool
+	rePanic bool
 
-	// WaitForDelivery configures whether you want to block the request before moving forward with the response.
-	// If Recover middleware is used, it's safe to either skip this option or set it to false.
 	// Optional. Default: false
-	WaitForDelivery bool
+	waitForDelivery bool
 
-	// SendHead configures whether you want to add current request head when capturing sentry events.
 	// Optional. Default: false
-	SendRequest bool
+	sendRequest bool
 
-	// SendHead configures whether you want to add current request body when capturing sentry events.
 	// Optional. Default: false
-	SendBody bool
+	sendBody bool
 
-	// Timeout for the event delivery requests.
 	// Optional. Default: 2 Seconds
-	Timeout time.Duration
+	timeout time.Duration
 }
 
-func NewOptions(opts ...Option) Options {
-	options := Options{
-		RePanic:         false,
-		WaitForDelivery: false,
-		SendRequest:     false,
-		SendBody:        false,
-		Timeout:         2,
+func NewOptions(opts ...Option) options {
+	cfg := options{
+		rePanic:         false,
+		waitForDelivery: false,
+		sendRequest:     false,
+		sendBody:        false,
+		timeout:         2,
 	}
-	options.Apply(opts)
-	return options
+	cfg.Apply(opts)
+	return cfg
 }
 
-func (o *Options) Apply(opts []Option) {
+func (o *options) Apply(opts []Option) {
 	for _, op := range opts {
 		op.F(o)
 	}
 }
 
+// WithRePanic configures whether Sentry should repanic after recovery.
+// Set to true, if Recover middleware is used.
 func WithRePanic(rePanic bool) Option {
-	return Option{F: func(o *Options) {
-		o.RePanic = rePanic
+	return Option{F: func(o *options) {
+		o.rePanic = rePanic
 	}}
 }
 
+// WithWaitForDelivery configures whether you want to block the request before moving forward with the response.
+// If Recover middleware is used, it's safe to either skip this option or set it to false.
 func WithWaitForDelivery(waitForDelivery bool) Option {
-	return Option{F: func(o *Options) {
-		o.WaitForDelivery = waitForDelivery
+	return Option{F: func(o *options) {
+		o.waitForDelivery = waitForDelivery
 	}}
 }
 
-func WithSendRequest(SendRequest bool) Option {
-	return Option{F: func(o *Options) {
-		o.SendRequest = SendRequest
+// WithSendRequest configures whether you want to add current request head when capturing sentry events.
+func WithSendRequest(sendRequest bool) Option {
+	return Option{F: func(o *options) {
+		o.sendRequest = sendRequest
 	}}
 }
 
+// WithSendBody configures whether you want to add current request body when capturing sentry events.
 func WithSendBody(sendBody bool) Option {
-	return Option{F: func(o *Options) {
-		o.SendBody = sendBody
+	return Option{F: func(o *options) {
+		o.sendBody = sendBody
 	}}
 }
 
+// WithTimeout configs timeout for the event delivery requests.
 func WithTimeout(timeout time.Duration) Option {
-	return Option{F: func(o *Options) {
+	return Option{F: func(o *options) {
 		if timeout == 0 {
-			o.Timeout = 2 * time.Second
+			o.timeout = 2 * time.Second
 			return
 		}
-		o.Timeout = timeout
+		o.timeout = timeout
 	}}
 }

@@ -26,7 +26,7 @@ import (
 const valuesKey = "sentry-hub"
 
 // the sentry config that used in the lifetime of sentry.
-var sentryConfig Options
+var sentryConfig options
 
 // NewSentry the config of sentry and return the handler of sentry middleware
 func NewSentry(options ...Option) app.HandlerFunc {
@@ -45,10 +45,10 @@ func recoverWithSentry(ctx *app.RequestContext) {
 			context.WithValue(context.Background(), sentry.RequestContextKey, ctx),
 			err,
 		)
-		if eventID != nil && sentryConfig.WaitForDelivery {
-			hub.Flush(sentryConfig.Timeout)
+		if eventID != nil && sentryConfig.waitForDelivery {
+			hub.Flush(sentryConfig.timeout)
 		}
-		if sentryConfig.RePanic {
+		if sentryConfig.rePanic {
 			panic(err)
 		}
 	}
@@ -67,12 +67,12 @@ func GetHubFromContext(ctx *app.RequestContext) *sentry.Hub {
 	hub := sentry.CurrentHub().Clone()
 
 	// set request head for hub
-	if request, err := adaptor.GetCompatRequest(&ctx.Request); err == nil && sentryConfig.SendRequest {
+	if request, err := adaptor.GetCompatRequest(&ctx.Request); err == nil && sentryConfig.sendRequest {
 		hub.Scope().SetRequest(request)
 	}
 
 	// set request body for hub
-	if bytes, err := ctx.Body(); err == nil && bytes != nil && sentryConfig.SendBody {
+	if bytes, err := ctx.Body(); err == nil && bytes != nil && sentryConfig.sendBody {
 		hub.Scope().SetRequestBody(bytes)
 	}
 	ctx.Set(valuesKey, hub)
