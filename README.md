@@ -80,11 +80,11 @@ func main()  {
 		hertzsentry.WithRePanic(true),
 		))
 
-	h.GET("/bytedance", func(c context.Context, ctx *app.RequestContext) {
+	h.GET("/hello", func(c context.Context, ctx *app.RequestContext) {
 		// use GetHubFromContext to get the hub
 		if hub := hertzsentry.GetHubFromContext(ctx); hub != nil {
 			hub.WithScope(func(scope *sentry.Scope) {
-				scope.SetTag("bytedance", "CloudWeGo for Bytedance")
+				scope.SetTag("hertz", "CloudWeGo Hertz")
 				scope.SetLevel(sentry.LevelDebug)
 				hub.CaptureMessage("Just for debug")
 			})
@@ -98,10 +98,10 @@ func main()  {
 
 ### Test 
 
-Send a request to the interface `localhost:8888/bytedance`, then you can see the event in your sentry UI.
+Send a request to the interface `localhost:8888/hello`, then you can see the event in your sentry UI.
 
 ```sh
-curl localhost:8888/bytedance
+curl localhost:8888/hello
 ```
 
 
