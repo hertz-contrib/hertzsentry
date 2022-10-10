@@ -34,7 +34,6 @@ import (
 
 // testCase basic info
 type testCase struct {
-	desc    string
 	path    string
 	method  string
 	body    string
@@ -53,7 +52,7 @@ func Test_Sentry_Normal(t *testing.T) {
 	hertz := server.New(server.WithHostPorts(defaultHost))
 
 	tc := testCase{
-		path:   "/bytedance",
+		path:   "/hello",
 		method: "GET",
 		handler: NewSentry(
 			WithRePanic(true),
@@ -65,7 +64,7 @@ func Test_Sentry_Normal(t *testing.T) {
 			Level:   sentry.LevelDebug,
 			Message: "test for normal",
 			Request: &sentry.Request{
-				URL:    "http://localhost:6666/bytedance",
+				URL:    "http://localhost:6666/hello",
 				Method: "GET",
 				Headers: map[string]string{
 					"Host":            "localhost:6666",
@@ -105,7 +104,7 @@ func Test_Sentry_Normal(t *testing.T) {
 	hertz.Handle(tc.method, tc.path, func(c context.Context, ctx *app.RequestContext) {
 		if hub := GetHubFromContext(ctx); hub != nil {
 			hub.WithScope(func(scope *sentry.Scope) {
-				scope.SetTag("bytedance", "CloudWeGo for Bytedance")
+				scope.SetTag("hello", "CloudWeGo Hertz")
 				scope.SetLevel(sentry.LevelDebug)
 				hub.CaptureMessage("test for normal")
 			})
