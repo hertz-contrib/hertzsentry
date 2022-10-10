@@ -47,7 +47,7 @@ func NewOptions(opts ...Option) options {
 		waitForDelivery: false,
 		sendRequest:     false,
 		sendBody:        false,
-		timeout:         2,
+		timeout:         2 * time.Second,
 	}
 	cfg.Apply(opts)
 	return cfg
@@ -92,10 +92,8 @@ func WithSendBody(sendBody bool) Option {
 // WithTimeout configs timeout for the event delivery requests.
 func WithTimeout(timeout time.Duration) Option {
 	return Option{F: func(o *options) {
-		if timeout == 0 {
-			o.timeout = 2 * time.Second
-			return
+		if timeout != 0 {
+			o.timeout = timeout
 		}
-		o.timeout = timeout
 	}}
 }
