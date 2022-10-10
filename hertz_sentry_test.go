@@ -45,7 +45,6 @@ type testCase struct {
 var yourDsn = ""
 
 func Test_Sentry_Normal(t *testing.T) {
-
 	// default host
 	defaultHost := "localhost:6666"
 
