@@ -41,7 +41,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/getsentry/sentry-go"
@@ -61,7 +60,6 @@ func main()  {
 		Dsn: yourDsn,
 		// Before send callback.
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
-			fmt.Println(event)
 			return event
 		},
 		// In debug mode, the debug information is printed to stdout to help you understand what
