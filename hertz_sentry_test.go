@@ -18,7 +18,6 @@ package hertzsentry
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -89,7 +88,6 @@ func Test_Sentry_Normal(t *testing.T) {
 			assert.DeepEqual(t, tc.event.Message, event.Message)
 			assert.DeepEqual(t, tc.event.Level, event.Level)
 			assert.DeepEqual(t, tc.event.Exception, event.Exception)
-			fmt.Println(event)
 			return event
 		},
 		// In debug mode, the debug information is printed to stdout to help you understand what
@@ -170,7 +168,6 @@ func Test_Sentry_Abnormal(t *testing.T) {
 			assert.DeepEqual(t, tc.event.Message, event.Message)
 			assert.DeepEqual(t, tc.event.Level, event.Level)
 			assert.DeepEqual(t, tc.event.Exception, event.Exception)
-			fmt.Println(event)
 			return event
 		},
 		// In debug mode, the debug information is printed to stdout to help you understand what
