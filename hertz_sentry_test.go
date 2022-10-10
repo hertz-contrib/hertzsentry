@@ -163,7 +163,6 @@ func Test_Sentry_Abnormal(t *testing.T) {
 		Dsn: yourDsn,
 		// Before send callback.
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
-			println(event.Request)
 			assert.DeepEqual(t, tc.event.Request, event.Request)
 			assert.DeepEqual(t, tc.event.Message, event.Message)
 			assert.DeepEqual(t, tc.event.Level, event.Level)
